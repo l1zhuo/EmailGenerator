@@ -15,4 +15,11 @@ Please open up EmailGenerator folder and clone the files. If only want the execu
 5. Need to consider “Our Truck” deliveries, right now it shows “0 packing slip, 0 photo, 0 packages”
 6. Freight: missing place to include “BOL”
 
+---
+
+## Change addressed on 7/2/2024 
+
+1. Considered payment receipt
+2. Added a space before Should
+
 
