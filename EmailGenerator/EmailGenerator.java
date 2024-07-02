@@ -2,6 +2,8 @@ package EmailGenerator;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.concurrent.Flow;
+
 import javax.swing.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Clipboard;
@@ -11,6 +13,7 @@ public class EmailGenerator {
 
     //public boolean isMail  =false;
     private boolean overdue = false;
+    private boolean cc = false;
     private String[] methodStrings = {"Mail","Freight","Delivery"};
     private String author ="";
     private String customer="";
@@ -24,18 +27,19 @@ public class EmailGenerator {
     
 
     private String paymentStatusString = "\nMeanwhile, I have attached the payment status for your review."
-                                            + "Should you have any recent payment plans, please let me know.";
+                                            + " Should you have any recent payment plans, please let me know.";
+    private String reciptString = " payment receipt, ";
     private String mailTemplateString = String.format("%s\n\n%s\n%s.%s\n%s\n%s",
                                     "Hi %s,",
                                     "Thank you for your confirmation. I'd like to confirm that your order has been shipped out.",
-                                    "Attached please find %d invoice(s) with tracking number, and %d photo(s) of %d package(s) for your reference.",
+                                    "Attached please find %d invoice(s) with tracking number,%sand %d photo(s) of %d package(s) for your reference.",
                                     "%s",
                                     "Thank you for your support.\n",
                                     "Best regards,\n%s.\n"+java.time.LocalDate.now());
     private String freightTemplateString = String.format("%s\n\n%s\n%s.%s\n%s\n%s",
                                     "Hi %s,",
                                     "Thank you for your confirmation. I'd like to confirm that your order has been shipped out.",
-                                    "Attached please find %d invoice(s), %d packing slip(s), %d BOL(s), and %d photo(s) of %d pallet(s) for your reference",
+                                    "Attached please find %d invoice(s), %d packing slip(s), %d BOL(s),%sand %d photo(s) of %d pallet(s) for your reference",
                                     "%s",
                                     "Thank you for your support.\n",
                                     "Best regards,\n%s.\n"+java.time.LocalDate.now());
@@ -55,11 +59,14 @@ public class EmailGenerator {
         mainMenu = new JFrame();
         //set up panels
         JPanel methodPanel = new JPanel(new FlowLayout());
-        JPanel allPanel = new JPanel(new GridLayout(15,20));
+        JPanel checkBoxPanel = new JPanel(new FlowLayout());
+        methodPanel.setSize(15,1);
+        JPanel allPanel = new JPanel(new GridLayout(10,10));
         //save button
         JButton saveButton = new JButton("Save and Preview");
         //JCheckBox methodBox = new JCheckBox("Shipped by Mail?");
         JCheckBox overdueBox = new JCheckBox("Send payment status?");
+        JCheckBox ccBox = new JCheckBox("paid by Credit Card?");
         //set up the labels
         JLabel methodLabel = new JLabel("Shipped by:");
         JLabel numBOLLabel = new JLabel("Number of BOLs: ");
@@ -87,11 +94,14 @@ public class EmailGenerator {
         //methodPanel
         methodPanel.add(methodLabel);
         methodPanel.add(methodMenu);
+        //checkbox panel
+        checkBoxPanel.add(overdueBox);
+        checkBoxPanel.add(ccBox);
 
         //allPanel
         allPanel.add(methodPanel);
         //allPanel.add(methodBox);
-        allPanel.add(overdueBox);
+        allPanel.add(checkBoxPanel);
         allPanel.add(authorLabel);
         allPanel.add(authorField);
         allPanel.add(customerLabel);
@@ -119,11 +129,18 @@ public class EmailGenerator {
                 //isMail = methodBox.isSelected();
                 String method = String.valueOf(methodMenu.getSelectedItem());
                 overdue = overdueBox.isSelected();
+                cc = ccBox.isSelected();
+                String ccTemp = reciptString;
                 String temp=paymentStatusString;
                 if(!overdue){
                     temp="";
                 }else{
                     temp=paymentStatusString;
+                }
+                if(!cc){
+                    ccTemp="";
+                }else{
+                    ccTemp=reciptString;
                 }
                 author = authorField.getText();
                 customer = customerField.getText();
@@ -148,12 +165,12 @@ public class EmailGenerator {
                 switch(method){
                     case "Mail":
                         result = String.format(mailTemplateString,customer,
-                                                numInvoices,numPhotos,numBoxes,
+                                                numInvoices,ccTemp,numPhotos,numBoxes,
                                                 temp,author);
                         break;
                     case "Freight":
                         result = String.format(freightTemplateString,customer,
-                                                numInvoices,numPackingSlips,numBOL,
+                                                numInvoices,numPackingSlips,numBOL,ccTemp,
                                                 numPhotos,numBoxes,
                                                 temp,author);
                         break;
@@ -164,7 +181,7 @@ public class EmailGenerator {
                         break;
                     default:
                         result = String.format(mailTemplateString,customer,
-                                                numInvoices,numPhotos,numBoxes,
+                                                numInvoices,ccTemp,numPhotos,numBoxes,
                                                 temp,author);
                         break;
 
